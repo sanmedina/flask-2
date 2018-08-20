@@ -3,8 +3,6 @@ import os
 from flask import Flask
 
 # app = Flask(__name__)
-# Class config
-# app.config.from_object('config.DevelopmentConfig')
 # Load from instance
 app = Flask(__name__,
             instance_path=os.path.dirname(__file__) + '/instance',
