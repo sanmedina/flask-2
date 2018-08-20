@@ -12,9 +12,7 @@ instance_path = dirname(dirname(abspath(__file__))) + '/instance'
 app = Flask(__name__,
             instance_path=instance_path,
             instance_relative_config=True)
-app.config.from_pyfile('config.cfg')
-# Supress error
-# app.config.from_pyfile('config.cfg', silent=True)
+app.config.from_pyfile('config.cfg', silent=True)
 # Custom static
 # app = Flask(
 #     __name__,
