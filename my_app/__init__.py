@@ -1,12 +1,20 @@
 import datetime
 import json
+from os.path import abspath
+from os.path import dirname
 
 from flask import Flask
 from flask import url_for
 
 from my_app.hello.views import hello
 
-app = Flask(__name__)
+instance_path = dirname(dirname(abspath(__file__))) + '/instance'
+app = Flask(__name__,
+            instance_path=instance_path,
+            instance_relative_config=True)
+app.config.from_pyfile('config.cfg')
+# Supress error
+# app.config.from_pyfile('config.cfg', silent=True)
 # Custom static
 # app = Flask(
 #     __name__,
@@ -19,7 +27,7 @@ app.register_blueprint(hello)
 
 
 class ConfigEncoder(json.JSONEncoder):
-    def default(self, config_obj):
+    def default(self, config_obj): # pylint: disable=E0202
         if isinstance(config_obj, datetime.datetime):
             return config_obj.strftime('%Y-%m-%d %H:%I:%S')
         if isinstance(config_obj, datetime.time):
