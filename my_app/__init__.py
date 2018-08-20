@@ -1,5 +1,6 @@
 from flask import Flask
 
-app = Flask(__name__)
+from my_app.hello.views import hello
 
-import my_app.hello.views
+app = Flask(__name__)
+app.register_blueprint(hello)
