@@ -1,3 +1,6 @@
 {
+    "files.associations": {
+        "*.html": "jinja-html"
+    },
     "python.pythonPath": "${workspaceFolder}/venv/bin/python"
 }

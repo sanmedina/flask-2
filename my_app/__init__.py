@@ -6,13 +6,15 @@ from os.path import dirname
 from flask import Flask
 from flask import url_for
 
-from my_app.hello.views import hello
+from my_app.product.views import product_blueprint
 
-instance_path = dirname(dirname(abspath(__file__))) + '/instance'
-app = Flask(__name__,
-            instance_path=instance_path,
-            instance_relative_config=True)
-app.config.from_pyfile('config.cfg', silent=True)
+app = Flask(__name__)
+# instance_path = dirname(dirname(abspath(__file__))) + '/instance'
+# Instance config
+# app = Flask(__name__,
+#             instance_path=instance_path,
+#             instance_relative_config=True)
+# app.config.from_pyfile('config.cfg', silent=True)
 # Custom static
 # app = Flask(
 #     __name__,
@@ -21,7 +23,7 @@ app.config.from_pyfile('config.cfg', silent=True)
 # )
 # Class config
 # app.config.from_object('config.DevelopmentConfig')
-app.register_blueprint(hello)
+app.register_blueprint(product_blueprint)
 
 
 class ConfigEncoder(json.JSONEncoder):
