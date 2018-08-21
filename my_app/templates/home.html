@@ -1,7 +1,14 @@
 {% extends 'base.html' %}
 
+{% from '_helpers.html' import render_field %}
+
 {% block container %}
     <div class="top-pad">
+        <fieldset>
+            {{ render_field('username', 'icon-user') }}
+            {{ render_field('password', 'icon-key', type='password') }}
+        </fieldset>
+        <br>
         {% for id, product in products.iteritems() %}
             <div class="well">
                 <h2>
