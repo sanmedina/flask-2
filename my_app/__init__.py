@@ -7,6 +7,7 @@ import ccy
 from flask import Flask
 from flask import request
 from flask import url_for
+from jinja2 import Markup
 
 from my_app.product.views import product_blueprint
 
@@ -29,7 +30,7 @@ app.register_blueprint(product_blueprint)
 
 
 class ConfigEncoder(json.JSONEncoder):
-    def default(self, config_obj): # pylint: disable=E0202
+    def default(self, config_obj):  # pylint: disable=E0202
         if isinstance(config_obj, datetime.datetime):
             return config_obj.strftime('%Y-%m-%d %H:%I:%S')
         if isinstance(config_obj, datetime.time):
@@ -37,6 +38,27 @@ class ConfigEncoder(json.JSONEncoder):
         if isinstance(config_obj, datetime.timedelta):
             return config_obj.total_seconds()
         return super.default(self, config_obj)
+
+
+class momentjs(object):
+    def __init__(self, timestamp):
+        self.timestamp = timestamp
+
+    def render(self, format):
+        return Markup("<script>\ndocument.write(moment(\"%s\").%s);\n</script>" % (self.timestamp.strftime("%Y-%m-%dT%H:%M:%S"), format))
+
+    def format(self, fmt):
+        return self.render("format(\"%s\")" % fmt)
+
+    def calendar(self):
+        return self.render("calendar()")
+
+    def from_now(self):
+        return self.render("fromNow()")
+
+
+app.jinja_env.globals['datetime'] = datetime
+app.jinja_env.globals['momentjs'] = momentjs
 
 
 @app.route('/logo')
