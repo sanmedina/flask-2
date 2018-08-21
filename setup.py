@@ -13,7 +13,10 @@ setup(
     description='Hello world app for Flask',
     packages=find_packages(),
     platforms='any',
-    install_requires=['flask'],
+    install_requires=[
+        'flask',
+        'ccy',
+    ],
     extras_require={
         'dev': [
             'pylint',

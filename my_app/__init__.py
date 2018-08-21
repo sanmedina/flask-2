@@ -3,7 +3,9 @@ import json
 from os.path import abspath
 from os.path import dirname
 
+import ccy
 from flask import Flask
+from flask import request
 from flask import url_for
 
 from my_app.product.views import product_blueprint
@@ -53,3 +55,9 @@ def config():
                       cls=ConfigEncoder,
                       separators=(',<br>', ':'),
                       sort_keys=True)
+
+
+@app.template_filter('format_currency')
+def format_currency_filter(amount):
+    currency_code = ccy.countryccy(request.accept_languages.best[-2:])
+    return '{} {}'.format(currency_code, amount)

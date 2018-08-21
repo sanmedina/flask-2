@@ -26,3 +26,8 @@ def some_processor():
     def full_name(product):
         return '{} / {}'.format(product['category'], product['name'])
     return {'full_name': full_name}
+
+
+@product_blueprint.app_template_filter('full_name')
+def full_name_filter(product):
+    return '{} / {}'.format(product['category'], product['name'])
