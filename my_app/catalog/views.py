@@ -4,6 +4,7 @@ from flask import request
 
 from my_app import app
 from my_app import db
+from my_app.catalog.models import Category
 from my_app.catalog.models import Product
 
 catalog = Blueprint('catalog', __name__)
@@ -14,10 +15,12 @@ catalog = Blueprint('catalog', __name__)
 def home():
     return "Welcome to the Catalog Home."
 
+
 @catalog.route('/product/<id>')
 def product(id):
     product = Product.query.get_or_404(id)
     return 'Product - {}, ${}'.format(product.name, product.price)
+
 
 @catalog.route('/products')
 def products():
@@ -30,11 +33,43 @@ def products():
         }
     return jsonify(res)
 
+
 @catalog.route('/product-create', methods=['POST'])
 def create_product():
     name = request.form.get('name')
     price = request.form.get('price')
-    product = Product(name, price)
+    category_name = request.form.get('category')
+    category = Category.query.filter_by(name=category_name).first()
+    if not category:
+        category = Category(category_name)
+    product = Product(name, price, category)
     db.session.add(product)
     db.session.commit()
     return 'Product crreate.'
+
+
+@catalog.route('/category-create', methods=['POST'])
+def create_category():
+    name = request.form.get('name')
+    category = Category(name)
+    db.session.add(category)
+    db.session.commit()
+    return 'Category created'
+
+
+@catalog.route('/categories')
+def categories():
+    categories = Category.query.all()
+    res = {}
+    for category in categories:
+        res[category.id] = {
+            'name': category.name,
+            'products': list(),
+        }
+        for product in category.products:
+            res[category.id]['products'].append({
+                'id': product.id,
+                'name': product.name,
+                'price': product.price,
+            })
+    return jsonify(res)
