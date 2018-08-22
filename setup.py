@@ -15,6 +15,7 @@ setup(
     platforms='any',
     install_requires=[
         'flask',
+        'flask-sqlalchemy',
         'ccy',
     ],
     extras_require={

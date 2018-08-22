@@ -7,11 +7,14 @@ import ccy
 from flask import Flask
 from flask import request
 from flask import url_for
+from flask_sqlalchemy import SQLAlchemy
 from jinja2 import Markup
 
-from my_app.product.views import product_blueprint
+# from my_app.product.views import product_blueprint
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+db = SQLAlchemy(app)
 # instance_path = dirname(dirname(abspath(__file__))) + '/instance'
 # Instance config
 # app = Flask(__name__,
@@ -26,7 +29,11 @@ app = Flask(__name__)
 # )
 # Class config
 # app.config.from_object('config.DevelopmentConfig')
-app.register_blueprint(product_blueprint)
+# app.register_blueprint(product_blueprint)
+from my_app.catalog.views import catalog
+app.register_blueprint(catalog)
+
+db.create_all()
 
 
 class ConfigEncoder(json.JSONEncoder):
