@@ -7,6 +7,7 @@ import ccy
 from flask import Flask
 from flask import request
 from flask import url_for
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from jinja2 import Markup
 
@@ -15,6 +16,7 @@ from jinja2 import Markup
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 # instance_path = dirname(dirname(abspath(__file__))) + '/instance'
 # Instance config
 # app = Flask(__name__,
@@ -90,3 +92,6 @@ def config():
 def format_currency_filter(amount):
     currency_code = ccy.countryccy(request.accept_languages.best[-2:])
     return '{} {}'.format(currency_code, amount)
+
+if __name__ == '__main__':
+    app.run()

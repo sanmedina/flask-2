@@ -17,6 +17,7 @@ class Product(db.Model):
     category = relationship('Category',
                             backref=backref('products',
                             lazy='dynamic'))
+    company = Column(String(100))
 
     def __init__(self, name, price, category):
         self.name = name
