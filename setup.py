@@ -19,6 +19,7 @@ setup(
         'ccy',
         'Flask-Migrate',
         'redis',
+        'flask-mongoengine',
     ],
     extras_require={
         'dev': [

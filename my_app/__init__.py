@@ -8,6 +8,7 @@ from flask import Flask
 from flask import request
 from flask import url_for
 from flask_migrate import Migrate
+from flask_mongoengine import MongoEngine
 from flask_sqlalchemy import SQLAlchemy
 from jinja2 import Markup
 from redis import Redis
@@ -19,6 +20,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 redis = Redis(host='alpine')
+app.config['MONGODB_SETTINGS'] = {'DB': 'my_catalog', 'HOST': 'alpine'}
+db_mongo = MongoEngine(app)
 # instance_path = dirname(dirname(abspath(__file__))) + '/instance'
 # Instance config
 # app = Flask(__name__,
