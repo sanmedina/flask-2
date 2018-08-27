@@ -4,6 +4,7 @@ from flask import request
 
 from my_app import app
 from my_app import db
+from my_app import redis
 from my_app.catalog.models import Category
 from my_app.catalog.models import Product
 
@@ -19,6 +20,9 @@ def home():
 @catalog.route('/product/<id>')
 def product(id):
     product = Product.query.get_or_404(id)
+    product_key = 'product-{}'.format(product.id)
+    redis.set(product_key, product.name)
+    redis.expire(product_key, 600)
     return 'Product - {}, ${}'.format(product.name, product.price)
 
 
@@ -33,6 +37,11 @@ def products():
         }
     return jsonify(res)
 
+@catalog.route('/recent-products')
+def recent_products():
+    keys_alive = redis.keys('product-*')
+    products = [redis.get(k) for k in keys_alive]
+    return jsonify({'products': products})
 
 @catalog.route('/product-create', methods=['POST'])
 def create_product():

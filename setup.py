@@ -18,6 +18,7 @@ setup(
         'flask-sqlalchemy',
         'ccy',
         'Flask-Migrate',
+        'redis',
     ],
     extras_require={
         'dev': [

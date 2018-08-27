@@ -10,6 +10,7 @@ from flask import url_for
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from jinja2 import Markup
+from redis import Redis
 
 # from my_app.product.views import product_blueprint
 
@@ -17,6 +18,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+redis = Redis(host='alpine')
 # instance_path = dirname(dirname(abspath(__file__))) + '/instance'
 # Instance config
 # app = Flask(__name__,
