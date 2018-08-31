@@ -3,6 +3,7 @@ from decimal import Decimal
 from flask import Blueprint
 from flask import jsonify
 from flask import request
+from flask import render_template
 
 from my_app import app
 from my_app import db
@@ -16,7 +17,7 @@ catalog = Blueprint('catalog', __name__)
 @catalog.route('/')
 @catalog.route('/home')
 def home():
-    return "Welcome to the Catalog Home."
+    return render_template('home.html')
 
 
 # Mongo product
@@ -27,10 +28,10 @@ def home():
 @catalog.route('/product/<id>')
 def product(id):
     product = Product.query.get_or_404(id)
-    product_key = 'product-{}'.format(product.id)
-    redis.set(product_key, product.name)
-    redis.expire(product_key, 600)
-    return 'Product - {}, ${}'.format(product.name, product.price)
+    # product_key = 'product-{}'.format(product.id)
+    # redis.set(product_key, product.name)
+    # redis.expire(product_key, 600)
+    return render_template('product.html', product=product)
 
 
 @catalog.route('/products', defaults={'page': 1})
@@ -39,24 +40,25 @@ def products(page):
     # Mongo product
     # products = Product.objects.all()
     # SQL product
-    products = Product.query.paginate(page, 10).items
-    res = {}
-    for product in products:
-        # Mongo product
-        # res[product.key] = {
-        # SQL product
-        res[product.id] = {
-            'name': product.name,
-            'price': str(product.price),
-        }
-    return jsonify(res)
+    products = Product.query.paginate(page, 10)
+    return render_template('products.html', products=products)
+    # res = {}
+    # for product in products:
+    #     # Mongo product
+    #     # res[product.key] = {
+    #     # SQL product
+    #     res[product.id] = {
+    #         'name': product.name,
+    #         'price': str(product.price),
+    #     }
+    # return jsonify(res)
 
 
-@catalog.route('/recent-products')
-def recent_products():
-    keys_alive = redis.keys('product-*')
-    products = [redis.get(k) for k in keys_alive]
-    return jsonify({'products': products})
+# @catalog.route('/recent-products')
+# def recent_products():
+#     keys_alive = redis.keys('product-*')
+#     products = [redis.get(k) for k in keys_alive]
+#     return jsonify({'products': products})
 
 
 @catalog.route('/product-create', methods=['POST'])
@@ -77,7 +79,7 @@ def create_product():
     product = Product(name, price, category)
     db.session.add(product)
     db.session.commit()
-    return 'Product crreate.'
+    return render_template('product.html', product=product)
 
 
 @catalog.route('/category-create', methods=['POST'])
@@ -86,22 +88,29 @@ def create_category():
     category = Category(name)
     db.session.add(category)
     db.session.commit()
-    return 'Category created'
+    return render_template('category.html', category=category)
+
+
+@catalog.route('/category/<id>')
+def category(id):
+    category = Category.query.get_or_404(id)
+    return render_template('category.html', category=category)
 
 
 @catalog.route('/categories')
 def categories():
     categories = Category.query.all()
-    res = {}
-    for category in categories:
-        res[category.id] = {
-            'name': category.name,
-            'products': list(),
-        }
-        for product in category.products:
-            res[category.id]['products'].append({
-                'id': product.id,
-                'name': product.name,
-                'price': product.price,
-            })
-    return jsonify(res)
+    return render_template('categories.html', categories=categories)
+    # res = {}
+    # for category in categories:
+    #     res[category.id] = {
+    #         'name': category.name,
+    #         'products': list(),
+    #     }
+    #     for product in category.products:
+    #         res[category.id]['products'].append({
+    #             'id': product.id,
+    #             'name': product.name,
+    #             'price': product.price,
+    #         })
+    # return jsonify(res)
