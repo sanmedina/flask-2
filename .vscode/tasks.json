@@ -6,7 +6,7 @@
         {
             "label": "update-dev",
             "type": "shell",
-            "command": "sh scripts/update-dev.sh"
+            "command": "sh tasks/update-dev.sh"
         }
     ]
 }
