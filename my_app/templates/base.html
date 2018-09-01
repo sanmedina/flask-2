@@ -29,6 +29,16 @@
         {% block container %}{% endblock %}
     </div>
 
+    <br>
+    <div>
+        {% for category, message in get_flashed_messages(with_categories=True) %}
+            <div class="alert alert-{{ category }} alert-dismissable">
+                <button class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+
     {% block scripts %}
     {% endblock %}
 </body>

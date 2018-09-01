@@ -18,6 +18,7 @@ from redis import Redis
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+app.secret_key = 'some_random_key'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 redis = Redis(host='alpine')

@@ -2,9 +2,12 @@ from decimal import Decimal
 from functools import wraps
 
 from flask import Blueprint
+from flask import flash
 from flask import jsonify
-from flask import request
+from flask import redirect
 from flask import render_template
+from flask import request
+from flask import url_for
 
 from my_app import app
 from my_app import db
@@ -88,25 +91,28 @@ def products(page):
 #     return jsonify({'products': products})
 
 
-@catalog.route('/product-create', methods=['POST'])
+@catalog.route('/product-create', methods=['GET', 'POST'])
 def create_product():
-    name = request.form.get('name')
-    key = request.form.get('key')
-    price = request.form.get('price')
-    # Mongo product
-    # product = Product(name=name,
-    #                   key=key,
-    #                   price=Decimal(price))
-    # product.save()
-    # SQL product
-    category_name = request.form.get('category')
-    category = Category.query.filter_by(name=category_name).first()
-    if not category:
-        category = Category(category_name)
-    product = Product(name, price, category)
-    db.session.add(product)
-    db.session.commit()
-    return render_template('product.html', product=product)
+    if request.method == 'POST':
+        name = request.form.get('name')
+        key = request.form.get('key')
+        price = request.form.get('price')
+        # Mongo product
+        # product = Product(name=name,
+        #                   key=key,
+        #                   price=Decimal(price))
+        # product.save()
+        # SQL product
+        category_name = request.form.get('category')
+        category = Category.query.filter_by(name=category_name).first()
+        if not category:
+            category = Category(category_name)
+        product = Product(name, price, category)
+        db.session.add(product)
+        db.session.commit()
+        flash('The product {} has been created'.format(name), 'success')
+        return redirect(url_for('catalog.product', id=product.id))
+    return render_template('product-create.html')
 
 
 @catalog.route('/category-create', methods=['POST'])
