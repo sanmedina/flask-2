@@ -147,3 +147,25 @@ def categories():
     #             'price': product.price,
     #         })
     # return jsonify(res)
+
+
+@catalog.route('/product-search', defaults={'page': 1})
+@catalog.route('/product-search/<int:page>')
+def product_search(page):
+    name = request.args.get('name')
+    price = request.args.get('price')
+    company = request.args.get('company')
+    category = request.args.get('category')
+    products = Product.query
+    if name:
+        products = products.filter(Product.name.like('%{}%'.format(name)))
+    if price:
+        products = products.filter(Product.price == price)
+    if company:
+        products = products.filter(
+            Product.company.like('%{}%'.format(company))
+        )
+    if category:
+        products = products.join(Product.category) \
+            .filter(Category.name.like('%{}%'.format(category)))
+    return render_template('products.html', products=products.paginate(page, 10))
