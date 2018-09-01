@@ -6,6 +6,7 @@ from os.path import dirname
 import ccy
 from flask import Flask
 from flask import request
+from flask import render_template
 from flask import url_for
 from flask_migrate import Migrate
 from flask_mongoengine import MongoEngine
@@ -97,6 +98,12 @@ def config():
 def format_currency_filter(amount):
     currency_code = ccy.countryccy(request.accept_languages.best[-2:])
     return '{} {}'.format(currency_code, amount)
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
 
 if __name__ == '__main__':
     app.run()
