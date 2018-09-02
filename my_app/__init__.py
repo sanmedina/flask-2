@@ -2,6 +2,7 @@ import datetime
 import json
 from os.path import abspath
 from os.path import dirname
+from os.path import realpath
 
 import ccy
 from flask import Flask
@@ -17,6 +18,10 @@ from redis import Redis
 # from my_app.product.views import product_blueprint
 
 app = Flask(__name__)
+
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+app.config['UPLOAD_FOLDER'] = realpath('.') + '/my_app/static/uploads'
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 app.secret_key = 'some_random_key'
 db = SQLAlchemy(app)

@@ -13,6 +13,7 @@ from sqlalchemy import String
 from sqlalchemy.orm import backref
 from sqlalchemy.orm import relationship
 from wtforms import DecimalField
+from wtforms import FileField
 from wtforms import SelectField
 from wtforms import TextField
 from wtforms.validators import InputRequired
@@ -45,11 +46,13 @@ class Product(db.Model):
                             backref=backref('products',
                                             lazy='dynamic'))
     company = Column(String(100))
+    image_path = Column(String(255))
 
-    def __init__(self, name, price, category):
+    def __init__(self, name, price, category, image_path):
         self.name = name
         self.price = price
         self.category = category
+        self.image_path = image_path
 
     def __repr__(self):
         return '<Product {}>'.format(self.pk)
@@ -80,8 +83,8 @@ class CategoryField(SelectField):
         for v, _ in [(c.id, c.name) for c in Category.query.all()]:
             if self.data == v:
                 break
-            else:
-                raise ValueError(self.gettext('Not a valid choice'))
+        else:
+            raise ValueError(self.gettext('Not a valid choice'))
 
 
 class ProductForm(NameForm):
@@ -91,6 +94,7 @@ class ProductForm(NameForm):
                              coerce=int,
                              validators=[InputRequired()])
     company = TextField('Company', validators=[Optional()])
+    image = FileField('Product Image')
 
 
 class CategoryForm(NameForm):

@@ -1,3 +1,4 @@
+import os
 from decimal import Decimal
 from functools import wraps
 
@@ -8,7 +9,9 @@ from flask import redirect
 from flask import render_template
 from flask import request
 from flask import url_for
+from werkzeug.utils import secure_filename
 
+from my_app import ALLOWED_EXTENSIONS
 from my_app import app
 from my_app import db
 from my_app import redis
@@ -38,6 +41,11 @@ def template_or_json(template=None):
                 return render_template(template, **ctx)
         return decorated_fn
     return decorated
+
+
+def allowed_file(filename):
+    return '.' in filename \
+        and filename.lower().rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
 @catalog.route('/')
@@ -110,7 +118,12 @@ def create_product():
         category = Category.query.get_or_404(
             form.category.data
         )
-        product = Product(name, price, category)
+        image = request.files['image']
+        filename = ''
+        if image and allowed_file(image.filename):
+            filename = secure_filename(image.filename)
+            image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        product = Product(name, price, category, filename)
         db.session.add(product)
         db.session.commit()
         flash('The product {} has been created'.format(name), 'success')
