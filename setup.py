@@ -20,6 +20,7 @@ setup(
         'Flask-Migrate',
         'redis',
         'flask-mongoengine',
+        'flask-wtf',
     ],
     extras_require={
         'dev': [

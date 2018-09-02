@@ -14,6 +14,7 @@ from my_app import db
 from my_app import redis
 from my_app.catalog.models import Category
 from my_app.catalog.models import Product
+from my_app.catalog.models import ProductForm
 
 catalog = Blueprint('catalog', __name__)
 
@@ -93,6 +94,10 @@ def products(page):
 
 @catalog.route('/product-create', methods=['GET', 'POST'])
 def create_product():
+    form = ProductForm(request.form, csrf_enabled=False)
+    categories = [(c.id, c.name) for c in Category.query.all()]
+    form.category.choices = categories
+
     if request.method == 'POST':
         name = request.form.get('name')
         key = request.form.get('key')
@@ -103,16 +108,15 @@ def create_product():
         #                   price=Decimal(price))
         # product.save()
         # SQL product
-        category_name = request.form.get('category')
-        category = Category.query.filter_by(name=category_name).first()
-        if not category:
-            category = Category(category_name)
+        category = Category.query.get_or_404(
+            request.form.get('category')
+        )
         product = Product(name, price, category)
         db.session.add(product)
         db.session.commit()
         flash('The product {} has been created'.format(name), 'success')
         return redirect(url_for('catalog.product', id=product.id))
-    return render_template('product-create.html')
+    return render_template('product-create.html', form=form)
 
 
 @catalog.route('/category-create', methods=['POST'])
