@@ -1,0 +1,12 @@
+{% extends 'home.html' %}
+
+{% block container %}
+    <div class="top-pad">
+        <form action="{{ url_for('catalog.create_category') }}" method="post">
+            <div class="form-group">
+                {{ form.name.label }}: {{ form.name() }}
+            </div>
+            <input type="submit" value="Submit" class="btn btn-default">
+        </form>
+    </div>
+{% endblock %}

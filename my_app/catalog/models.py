@@ -17,6 +17,7 @@ from wtforms import SelectField
 from wtforms import TextField
 from wtforms.validators import InputRequired
 from wtforms.validators import NumberRange
+from wtforms.validators import Optional
 
 from my_app import db
 # from my_app import db_mongo
@@ -65,8 +66,17 @@ class Category(db.Model):
         return '<Category {}>'.format(self.id)
 
 
-class ProductForm(Form):
+class NameForm(Form):
     name = TextField('Name', validators=[InputRequired()])
+
+
+class ProductForm(NameForm):
     price = DecimalField('Price', validators=[InputRequired(),
                                               NumberRange(min=Decimal('0.0'))])
-    category = SelectField('Category', coerce=int, validators=[InputRequired()])
+    category = SelectField('Category', coerce=int,
+                           validators=[InputRequired()])
+    company = TextField('Company', validators=[Optional()])
+
+
+class CategoryForm(NameForm):
+    pass

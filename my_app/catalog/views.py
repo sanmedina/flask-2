@@ -14,6 +14,7 @@ from my_app import db
 from my_app import redis
 from my_app.catalog.models import Category
 from my_app.catalog.models import Product
+from my_app.catalog.models import CategoryForm
 from my_app.catalog.models import ProductForm
 
 catalog = Blueprint('catalog', __name__)
@@ -121,13 +122,20 @@ def create_product():
     return render_template('product-create.html', form=form)
 
 
-@catalog.route('/category-create', methods=['POST'])
+@catalog.route('/category-create', methods=['GET', 'POST'])
 def create_category():
-    name = request.form.get('name')
-    category = Category(name)
-    db.session.add(category)
-    db.session.commit()
-    return render_template('category.html', category=category)
+    form = CategoryForm(request.form, csrf_enabled=False)
+
+    if form.validate_on_submit():
+        name = form.name.data
+        category = Category(name)
+        db.session.add(category)
+        db.session.commit()
+        flash('The category {} has been created'.format(name), 'success')
+        return redirect(url_for('catalog.category', id=category.id))
+    if form.errors:
+        flash(form.errors)
+    return render_template('category-create.html', form=form)
 
 
 @catalog.route('/category/<id>')
