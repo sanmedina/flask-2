@@ -98,24 +98,26 @@ def create_product():
     categories = [(c.id, c.name) for c in Category.query.all()]
     form.category.choices = categories
 
-    if request.method == 'POST':
-        name = request.form.get('name')
-        key = request.form.get('key')
-        price = request.form.get('price')
+    if form.validate_on_submit():
+        name = form.name.data
+        price = form.price.data
         # Mongo product
+        # key = request.form.get('key')
         # product = Product(name=name,
         #                   key=key,
         #                   price=Decimal(price))
         # product.save()
         # SQL product
         category = Category.query.get_or_404(
-            request.form.get('category')
+            form.category.data
         )
         product = Product(name, price, category)
         db.session.add(product)
         db.session.commit()
         flash('The product {} has been created'.format(name), 'success')
         return redirect(url_for('catalog.product', id=product.id))
+    if form.errors:
+        flash(form.errors, 'danger')
     return render_template('product-create.html', form=form)
 
 

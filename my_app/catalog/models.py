@@ -1,4 +1,5 @@
 import datetime
+from decimal import Decimal
 
 from flask_wtf import Form
 from mongoengine import DateTimeField
@@ -14,6 +15,8 @@ from sqlalchemy.orm import relationship
 from wtforms import DecimalField
 from wtforms import SelectField
 from wtforms import TextField
+from wtforms.validators import InputRequired
+from wtforms.validators import NumberRange
 
 from my_app import db
 # from my_app import db_mongo
@@ -63,6 +66,7 @@ class Category(db.Model):
 
 
 class ProductForm(Form):
-    name = TextField('Name')
-    price = DecimalField('Price')
-    category = SelectField('Category', coerce=int)
+    name = TextField('Name', validators=[InputRequired()])
+    price = DecimalField('Price', validators=[InputRequired(),
+                                              NumberRange(min=Decimal('0.0'))])
+    category = SelectField('Category', coerce=int, validators=[InputRequired()])
