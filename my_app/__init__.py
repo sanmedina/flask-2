@@ -44,8 +44,10 @@ redis = Redis(host='alpine')
 # Class config
 # app.config.from_object('config.DevelopmentConfig')
 # app.register_blueprint(product_blueprint)
+from my_app.auth.views import auth
 from my_app.catalog.views import catalog
-app.register_blueprint(catalog)
+app.register_blueprint(auth)
+# app.register_blueprint(catalog)
 
 db.create_all()
 
