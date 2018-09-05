@@ -1,18 +1,29 @@
 from flask import Blueprint
 from flask import flash
+from flask import g
 from flask import redirect
 from flask import render_template
 from flask import request
 from flask import session
 from flask import url_for
+from flask_login import current_user
+from flask_login import login_required
+from flask_login import login_user
+from flask_login import logout_user
 
 from my_app import app
 from my_app import db
+from my_app import login_manager
 from my_app.auth.models import LoginForm
 from my_app.auth.models import RegistrationForm
 from my_app.auth.models import User
 
 auth = Blueprint('auth', __name__)
+
+
+@login_manager.user_loader
+def load_user(id):
+    return User.query.get(int(id))
 
 
 @auth.route('/')
@@ -50,6 +61,9 @@ def register():
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        flash('You are already logged in.')
+        return redirect(url_for('auth.home'))
     form = LoginForm(request.form)
     if form.validate_on_submit():
         username = form.username.data
@@ -60,7 +74,7 @@ def login():
             flash('Invalid username or password. Please try again.', 'danger')
             return render_template('login.html', form=form)
 
-        session['username'] = username
+        login_user(existing_user)
         flash('You have successfully logged in.', 'success')
         return redirect(url_for('auth.home'))
 
@@ -72,7 +86,6 @@ def login():
 
 @auth.route('/logout')
 def logout():
-    if 'username' in session:
-        session.pop('username')
-        flash('You have successfully logged out.', 'success')
+    logout_user()
+    flash('You have successfully logged out.', 'success')
     return redirect(url_for('auth.home'))

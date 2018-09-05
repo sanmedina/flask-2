@@ -9,6 +9,7 @@ from flask import Flask
 from flask import request
 from flask import render_template
 from flask import url_for
+from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_mongoengine import MongoEngine
 from flask_sqlalchemy import SQLAlchemy
@@ -24,6 +25,9 @@ app.config['UPLOAD_FOLDER'] = realpath('.') + '/my_app/static/uploads'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 app.secret_key = 'some_random_key'
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 redis = Redis(host='alpine')

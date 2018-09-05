@@ -21,6 +21,7 @@ setup(
         'redis',
         'flask-mongoengine',
         'flask-wtf',
+        'flask-login',
     ],
     extras_require={
         'dev': [
