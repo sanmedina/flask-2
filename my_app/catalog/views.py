@@ -1,7 +1,9 @@
+import json
 import os
 from decimal import Decimal
 from functools import wraps
 
+from flask import abort
 from flask import Blueprint
 from flask import flash
 from flask import jsonify
@@ -9,6 +11,7 @@ from flask import redirect
 from flask import render_template
 from flask import request
 from flask import url_for
+from flask.views import MethodView
 from werkzeug.utils import secure_filename
 
 from my_app import ALLOWED_EXTENSIONS
@@ -65,13 +68,13 @@ def home():
 # def product(key):
 #     product = Product.objects.get_or_404(key=key)
 # SQL product
-@catalog.route('/product/<id>')
-def product(id):
-    product = Product.query.get_or_404(id)
-    # product_key = 'product-{}'.format(product.id)
-    # redis.set(product_key, product.name)
-    # redis.expire(product_key, 600)
-    return render_template('product.html', product=product)
+# @catalog.route('/product/<id>')
+# def product(id):
+#     product = Product.query.get_or_404(id)
+#     # product_key = 'product-{}'.format(product.id)
+#     # redis.set(product_key, product.name)
+#     # redis.expire(product_key, 600)
+#     return render_template('product.html', product=product)
 
 
 @catalog.route('/products', defaults={'page': 1})
@@ -194,3 +197,45 @@ def product_search(page):
         products = products.join(Product.category) \
             .filter(Category.name.like('%{}%'.format(category)))
     return render_template('products.html', products=products.paginate(page, 10))
+
+
+class ProductView(MethodView):
+    def get(self, id=None, page=1):
+        if not id:
+            products = Product.query.paginate(page, 10).items
+            res = {}
+            for product in products:
+                res[product.id] = {
+                    'name': product.name,
+                    'price': product.price,
+                    'category': product.category.name,
+                }
+        else:
+            product = Product.query.filter_by(id=id).first()
+            if not product:
+                abort(404)
+            res = {
+                'name': product.name,
+                'price': product.price,
+                'category': product.category.name,
+            }
+        return json.dumps(res)
+
+    def post(self):
+        # Create new product
+        pass
+
+    def put(self, id):
+        # Update product
+        pass
+
+    def delete(self, id):
+        # Delete product
+        pass
+
+
+product_view = ProductView.as_view('product_view')
+app.add_url_rule('/products/', view_func=product_view, methods=['GET', 'POST'])
+app.add_url_rule('/products/<int:id>',
+                 view_func=product_view,
+                 methods=['GET', 'PUT', 'DELETE'])
