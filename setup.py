@@ -22,6 +22,7 @@ setup(
         'flask-mongoengine',
         'flask-wtf',
         'flask-login',
+        'flask-restless',
     ],
     extras_require={
         'dev': [

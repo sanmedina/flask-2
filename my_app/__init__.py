@@ -6,12 +6,13 @@ from os.path import realpath
 
 import ccy
 from flask import Flask
-from flask import request
 from flask import render_template
+from flask import request
 from flask import url_for
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_mongoengine import MongoEngine
+from flask_restless import APIManager
 from flask_sqlalchemy import SQLAlchemy
 from jinja2 import Markup
 from redis import Redis
@@ -31,6 +32,7 @@ login_manager.login_view = 'login'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 redis = Redis(host='alpine')
+manager = APIManager(app, flask_sqlalchemy_db=db)
 # app.config['MONGODB_SETTINGS'] = {'DB': 'my_catalog', 'HOST': 'alpine'}
 # db_mongo = MongoEngine(app)
 # instance_path = dirname(dirname(abspath(__file__))) + '/instance'

@@ -17,6 +17,7 @@ from werkzeug.utils import secure_filename
 from my_app import ALLOWED_EXTENSIONS
 from my_app import app
 from my_app import db
+from my_app import manager
 from my_app import redis
 from my_app.catalog.models import Category
 from my_app.catalog.models import Product
@@ -152,10 +153,10 @@ def create_category():
     return render_template('category-create.html', form=form)
 
 
-@catalog.route('/category/<id>')
-def category(id):
-    category = Category.query.get_or_404(id)
-    return render_template('category.html', category=category)
+# @catalog.route('/category/<id>')
+# def category(id):
+#     category = Category.query.get_or_404(id)
+#     return render_template('category.html', category=category)
 
 
 @catalog.route('/categories')
@@ -199,43 +200,6 @@ def product_search(page):
     return render_template('products.html', products=products.paginate(page, 10))
 
 
-class ProductView(MethodView):
-    def get(self, id=None, page=1):
-        if not id:
-            products = Product.query.paginate(page, 10).items
-            res = {}
-            for product in products:
-                res[product.id] = {
-                    'name': product.name,
-                    'price': product.price,
-                    'category': product.category.name,
-                }
-        else:
-            product = Product.query.filter_by(id=id).first()
-            if not product:
-                abort(404)
-            res = {
-                'name': product.name,
-                'price': product.price,
-                'category': product.category.name,
-            }
-        return json.dumps(res)
-
-    def post(self):
-        # Create new product
-        pass
-
-    def put(self, id):
-        # Update product
-        pass
-
-    def delete(self, id):
-        # Delete product
-        pass
-
-
-product_view = ProductView.as_view('product_view')
-app.add_url_rule('/products/', view_func=product_view, methods=['GET', 'POST'])
-app.add_url_rule('/products/<int:id>',
-                 view_func=product_view,
-                 methods=['GET', 'PUT', 'DELETE'])
+# Interesting but does not work quite well
+manager.create_api(Product, methods=['GET', 'POST', 'DELETE'])
+manager.create_api(Category, methods=['GET', 'POST', 'DELETE'])
