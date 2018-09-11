@@ -48,7 +48,7 @@ class Product(db.Model):
     company = Column(String(100))
     image_path = Column(String(255))
 
-    def __init__(self, name, price, category, image_path):
+    def __init__(self, name, price, category, image_path=None):
         self.name = name
         self.price = price
         self.category = category

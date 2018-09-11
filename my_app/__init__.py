@@ -12,6 +12,7 @@ from flask import url_for
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_mongoengine import MongoEngine
+from flask_restful import Api
 from flask_restless import APIManager
 from flask_sqlalchemy import SQLAlchemy
 from jinja2 import Markup
@@ -32,7 +33,10 @@ login_manager.login_view = 'login'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 redis = Redis(host='alpine')
+# Restless
 manager = APIManager(app, flask_sqlalchemy_db=db)
+# Restful
+api = Api(app)
 # app.config['MONGODB_SETTINGS'] = {'DB': 'my_catalog', 'HOST': 'alpine'}
 # db_mongo = MongoEngine(app)
 # instance_path = dirname(dirname(abspath(__file__))) + '/instance'

@@ -12,9 +12,12 @@ from flask import render_template
 from flask import request
 from flask import url_for
 from flask.views import MethodView
+from flask_restful import Resource
+from flask_restful import reqparse
 from werkzeug.utils import secure_filename
 
 from my_app import ALLOWED_EXTENSIONS
+from my_app import api
 from my_app import app
 from my_app import db
 from my_app import manager
@@ -200,6 +203,92 @@ def product_search(page):
     return render_template('products.html', products=products.paginate(page, 10))
 
 
+# Restless
 # Interesting but does not work quite well
-manager.create_api(Product, methods=['GET', 'POST', 'DELETE'])
+# manager.create_api(Product, methods=['GET', 'POST', 'DELETE'])
 manager.create_api(Category, methods=['GET', 'POST', 'DELETE'])
+
+# Restful
+
+
+class ProductApi(Resource):
+    parser = reqparse.RequestParser() \
+        .add_argument('name', type=str) \
+        .add_argument('price', type=float) \
+        .add_argument('category', type=dict)
+
+    def get(self, id=None, page=1):
+        if not id:
+            products = Product.query.paginate(page, 10).items
+            res = {}
+            for product in products:
+                res[product.id] = {
+                    'name': product.name,
+                    'price': product.price,
+                    'category': product.category.name,
+                }
+            return res
+        product = Product.query.get_or_404(id)
+        return {
+            'name': product.name,
+            'price': product.price,
+            'category': product.category.name,
+        }
+
+    def post(self):
+        args = self.parser.parse_args()
+        name = args['name']
+        price = args['price']
+        categ_name = args['category']['name']
+        category = Category.query.filter_by(name=categ_name).first()
+        if not category:
+            category = Category(categ_name)
+        product = Product(name, price, category)
+        db.session.add(product)
+        db.session.commit()
+        return {
+            'name': product.name,
+            'price': product.price,
+            'category': product.category.name,
+        }
+
+    def put(self, id):
+        args = self.parser.parse_args()
+        name = args['name']
+        price = args['price']
+        categ_name = args['category']['name'] \
+            if args.get('category') and args['category'].get('name') \
+            else None
+        if categ_name:
+            category = Category.query.filter_by(name=categ_name).first()
+            if not category:
+                abort(404)
+        else:
+            category = None
+        params = dict()
+        if name:
+            params['name'] = name
+        if price:
+            params['price'] = price
+        if category:
+            params['category_id'] = category.id
+        Product.query.filter_by(id=id).update(params)
+        db.session.commit()
+        product = Product.query.get_or_404(id)
+        return {
+            'name': product.name,
+            'price': product.price,
+            'category': product.category.name,
+        }
+
+    def delete(self, id):
+        product = Product.query.get_or_404(id)
+        db.session.delete(product)
+        db.session.commit()
+        return '', 204
+
+
+api.add_resource(ProductApi,
+                 '/api/product',
+                 '/api/product/<int:id>',
+                 '/api/product/<int:id>/<int:page>')

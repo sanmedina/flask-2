@@ -23,6 +23,7 @@ setup(
         'flask-wtf',
         'flask-login',
         'flask-restless',
+        'flask-restful',
     ],
     extras_require={
         'dev': [
