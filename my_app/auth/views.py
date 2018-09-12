@@ -1,22 +1,10 @@
-from flask import Blueprint
-from flask import flash
-from flask import g
-from flask import redirect
-from flask import render_template
-from flask import request
-from flask import session
-from flask import url_for
-from flask_login import current_user
-from flask_login import login_required
-from flask_login import login_user
-from flask_login import logout_user
+import requests
+from flask import (Blueprint, flash, g, redirect, render_template, request,
+                   session, url_for)
+from flask_login import current_user, login_required, login_user, logout_user
 
-from my_app import app
-from my_app import db
-from my_app import login_manager
-from my_app.auth.models import LoginForm
-from my_app.auth.models import RegistrationForm
-from my_app.auth.models import User
+from my_app import db, login_manager, oid
+from my_app.auth.models import LoginForm, OpenIDForm, RegistrationForm, User
 
 auth = Blueprint('auth', __name__)
 
@@ -24,6 +12,11 @@ auth = Blueprint('auth', __name__)
 @login_manager.user_loader
 def load_user(id):
     return User.query.get(int(id))
+
+
+@auth.before_request
+def get_current_user():
+    g.user = current_user
 
 
 @auth.route('/')
@@ -39,9 +32,10 @@ def register():
         return redirect(url_for('auth.home'))
 
     form = RegistrationForm(request.form)
-    if form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
+
+    if request.method == 'POST' and form.validate():
+        username = request.form.get('username')
+        password = request.form.get('password')
         existing_username = User.query.filter_by(username=username).first()
         if existing_username:
             flash(
@@ -52,27 +46,52 @@ def register():
         user = User(username, password)
         db.session.add(user)
         db.session.commit()
-        flash('You are new registered. Please login.', 'success')
+        flash('You are now registered. Please login.', 'success')
         return redirect(url_for('auth.login'))
+
     if form.errors:
         flash(form.errors, 'danger')
+
     return render_template('register.html', form=form)
 
 
 @auth.route('/login', methods=['GET', 'POST'])
+@oid.loginhandler
 def login():
-    if current_user.is_authenticated:
-        flash('You are already logged in.')
-        return redirect(url_for('auth.home'))
-    form = LoginForm(request.form)
-    if form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
-        existing_user = User.query.filter(User.username == username).first()
+    if g.user is not None and current_user.is_authenticated:
+        flash('You are already logged in.', 'info')
+        return redirect(url_for('home'))
 
-        if not (existing_user and existing_user.check_password(password)):
-            flash('Invalid username or password. Please try again.', 'danger')
-            return render_template('login.html', form=form)
+    form = LoginForm(request.form)
+    openid_form = OpenIDForm(request.form)
+
+    if request.method == 'POST':
+        if 'open_id' in request.form:
+            openid_form.validate()
+            if openid_form.errors:
+                flash(openid_form.errors, 'danger')
+                return render_template(
+                    'login.html', form=form, openid_form=openid_form
+                )
+            openid = request.form.get('openid')
+            return oid.try_login(openid, ask_for=['email', 'nickname'])
+        else:
+            form.validate()
+            if form.errors:
+                flash(form.errors, 'danger')
+                return render_template(
+                    'login.html', form=form, openid_form=openid_form
+                )
+            username = request.form.get('username')
+            password = request.form.get('password')
+            existing_user = User.query.filter_by(username=username).first()
+
+            if not (existing_user and existing_user.check_password(password)):
+                flash(
+                    'Invalid username or password. Please try again.',
+                    'danger'
+                )
+                return render_template('login.html', form=form)
 
         login_user(existing_user)
         flash('You have successfully logged in.', 'success')
@@ -81,11 +100,26 @@ def login():
     if form.errors:
         flash(form.errors, 'danger')
 
-    return render_template('login.html', form=form)
+    return render_template('login.html', form=form, openid_form=openid_form)
+
+
+@oid.after_login
+def after_login(resp):
+    username = resp.nickname or resp.email
+    if not username:
+        flash('Invalid login. Please try again.', 'danger')
+        return redirect(url_for('auth.login'))
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        user = User(username, '')
+        db.session.add(user)
+        db.session.commit()
+    login_user(user)
+    return redirect(url_for('auth.home'))
 
 
 @auth.route('/logout')
+@login_required
 def logout():
     logout_user()
-    flash('You have successfully logged out.', 'success')
     return redirect(url_for('auth.home'))

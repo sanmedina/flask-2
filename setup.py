@@ -16,14 +16,10 @@ setup(
     install_requires=[
         'flask',
         'flask-sqlalchemy',
-        'ccy',
-        'Flask-Migrate',
-        'redis',
-        'flask-mongoengine',
         'flask-wtf',
         'flask-login',
-        'flask-restless',
-        'flask-restful',
+        'requests',
+        'flask-openid',
     ],
     extras_require={
         'dev': [
