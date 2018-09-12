@@ -20,6 +20,7 @@ setup(
         'flask-login',
         'requests',
         'flask-openid',
+        'flask-admin',
     ],
     extras_require={
         'dev': [

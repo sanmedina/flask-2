@@ -1,10 +1,13 @@
+from functools import wraps
+
 import requests
-from flask import (Blueprint, flash, g, redirect, render_template, request,
-                   session, url_for)
+from flask import (Blueprint, abort, flash, g, redirect, render_template,
+                   request, session, url_for)
 from flask_login import current_user, login_required, login_user, logout_user
 
 from my_app import db, login_manager, oid
-from my_app.auth.models import LoginForm, OpenIDForm, RegistrationForm, User
+from my_app.auth.models import (AdminUserCreateForm, AdminUserUpdateForm,
+                                LoginForm, OpenIDForm, RegistrationForm, User)
 
 auth = Blueprint('auth', __name__)
 
@@ -12,6 +15,15 @@ auth = Blueprint('auth', __name__)
 @login_manager.user_loader
 def load_user(id):
     return User.query.get(int(id))
+
+
+def admin_login_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_user.is_admin:
+            return abort(403)
+        return func(*args, **kwargs)
+    return decorated_view
 
 
 @auth.before_request
@@ -123,3 +135,86 @@ def after_login(resp):
 def logout():
     logout_user()
     return redirect(url_for('auth.home'))
+
+
+@auth.route('/admin')
+@login_required
+@admin_login_required
+def home_admin():
+    return render_template('admin-home.html')
+
+
+@auth.route('/admin/users-list')
+@login_required
+@admin_login_required
+def users_list_admin():
+    users = User.query.all()
+    return render_template('users-list-admin.html', users=users)
+
+
+@auth.route('/admin/create-user', methods=['GET', 'POST'])
+@login_required
+@admin_login_required
+def user_create_admin():
+    form = AdminUserCreateForm(request.form)
+
+    if form.validate():
+        username = form.username.data
+        password = form.password.data
+        admin = form.admin.data
+        existing_username = User.query.filter_by(username=username).first()
+        if existing_username:
+            flash('This username has been already taken. Try anothe one.',
+                  'warning')
+            return render_template('register.html', form=form)
+        user = User(username, password, admin)
+        db.session.add(user)
+        db.session.commit()
+        flash('New user created.', 'info')
+        return redirect(url_for('auth.users_list_admin'))
+
+    if form.errors:
+        flash(form.errors, 'danger')
+
+    return render_template('user-create-admin.html', form=form)
+
+
+@auth.route('/admin/update-user/<id>', methods=['GET', 'POST'])
+@login_required
+@admin_login_required
+def user_update_admin(id):
+    user = User.query.get(id)
+    form = AdminUserUpdateForm(
+        request.form,
+        username=user.username,
+        admin=user.admin
+    )
+
+    if form.validate():
+        username = form.username.data
+        admin = form.admin.data
+
+        User.query.filter_by(id=id).update({
+            'username': username,
+            'admin': admin,
+        })
+
+        db.session.commit()
+        flash('User updated', 'info')
+        return redirect(url_for('auth.users_list_admin'))
+
+    if form.errors:
+        flash(form.errors, 'danger')
+
+    return render_template('user-update-admin.html', form=form, user=user)
+
+
+@auth.route('/admin/delete-user/<id>')
+@login_required
+@admin_login_required
+def user_delete_admin(id):
+    user = User.query.get(id)
+    db.session.delete(user)
+    db.session.commit()
+    flash('User deleted.')
+    return redirect(url_for('auth.users_list_admin'))
