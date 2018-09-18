@@ -71,7 +71,7 @@ def create_product():
         category = Category.query.get_or_404(
             form.category.data
         )
-        image = request.files['image']
+        image = request.files.get('image')
         filename = ''
         if image and allowed_file(image.filename):
             filename = secure_filename(image.filename)

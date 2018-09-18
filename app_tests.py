@@ -55,6 +55,33 @@ class CatalogTestCase(unittest.TestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertTrue(b'Phones' in rv.data)
 
+    def test_create_product(self):
+        "Test creation of new product"
+        rv = self.app.get('/product-create')
+        self.assertEqual(rv.status_code, 200)
+
+        rv = self.app.post('/product-create')
+        self.assertEqual(rv.status_code, 200)
+        self.assertTrue(b'This field is required.' in rv.data)
+
+        # Create a category to be used in product creation
+        rv = self.app.post('/category-create', data={
+            'name': 'Phones',
+        })
+        self.assertEqual(rv.status_code, 302)
+
+        rv = self.app.post('/product-create', data={
+            'name': 'iPhone 5',
+            'price': 549.49,
+            'company': 'Apple',
+            'category': 1
+        })
+        self.assertEqual(rv.status_code, 302)
+
+        rv = self.app.get('/products')
+        self.assertEqual(rv.status_code, 200)
+        self.assertTrue(b'iPhone 5' in rv.data)
+
 
 if __name__ == '__main__':
     unittest.main()
