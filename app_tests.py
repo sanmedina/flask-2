@@ -26,8 +26,34 @@ class CatalogTestCase(unittest.TestCase):
         "Test Products list page"
         rv = self.app.get('/products')
         self.assertEqual(rv.status_code, 200)
-        self.assertTrue('No previous page'.encode() in rv.data)
-        self.assertTrue('No next page'.encode() in rv.data)
+        self.assertTrue(b'No previous page' in rv.data)
+        self.assertTrue(b'No next page' in rv.data)
+
+    def test_create_category(self):
+        "Test creation of new category"
+        rv = self.app.get('/category-create')
+        self.assertEqual(rv.status_code, 200)
+
+        rv = self.app.post('/category-create')
+        self.assertEqual(rv.status_code, 200)
+        self.assertTrue(b'This field is required.' in rv.data)
+
+        rv = self.app.get('/categories')
+        self.assertEqual(rv.status_code, 200)
+        self.assertFalse(b'Phones' in rv.data)
+
+        rv = self.app.post('/category-create', data={
+            'name': 'Phones',
+        })
+        self.assertEqual(rv.status_code, 302)
+
+        rv = self.app.get('/categories')
+        self.assertEqual(rv.status_code, 200)
+        self.assertTrue(b'Phones' in rv.data)
+
+        rv = self.app.get('/category/1')
+        self.assertEqual(rv.status_code, 200)
+        self.assertTrue(b'Phones' in rv.data)
 
 
 if __name__ == '__main__':
