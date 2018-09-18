@@ -24,6 +24,7 @@ setup(
             'pylint',
             'autopep8',
             'nose',
+            'coverage',
         ],
     },
     classifiers=[
