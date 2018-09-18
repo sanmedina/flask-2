@@ -23,6 +23,7 @@ setup(
         'dev': [
             'pylint',
             'autopep8',
+            'nose',
         ],
     },
     classifiers=[
