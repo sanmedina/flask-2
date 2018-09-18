@@ -7,6 +7,11 @@
             "label": "update-dev",
             "type": "shell",
             "command": "sh tasks/update-dev.sh"
+        },
+        {
+            "label": "coverage",
+            "type": "shell",
+            "command": "sh tasks/coverage.sh"
         }
     ]
 }
