@@ -17,6 +17,7 @@ setup(
         'flask',
         'flask-sqlalchemy',
         'flask-wtf',
+        'flask-babel',
     ],
     extras_require={
         'dev': [

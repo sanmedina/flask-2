@@ -1,0 +1,32 @@
+# French translations for PROJECT.
+# Copyright (C) 2018 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2018-09-17 20:00-0500\n"
+"PO-Revision-Date: 2018-09-17 20:00-0500\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: my_app/catalog/models.py:75
+msgid "Not a valid choice"
+msgstr ""
+
+#: my_app/templates/home.html:4
+msgid "Welcome to the Catalog Home"
+msgstr "Bienvenue sur le catalogue Accueil"
+
+#: my_app/templates/home.html:6
+msgid "Click here to see the catalog"
+msgstr "Cliquez ici pour voir le catalogue"
+

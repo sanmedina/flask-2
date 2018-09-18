@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask
+from flask_babel import Babel
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -13,6 +14,12 @@ app.config['WTF_CSRF_SECRET_KEY'] = 'random key for form'
 db = SQLAlchemy(app)
 
 app.secret_key = 'some_random_key'
+
+ALLOWED_LANGUAGES = {
+    'en': 'English',
+    'fr': 'French',
+}
+babel = Babel(app)
 
 from my_app.catalog.views import catalog
 app.register_blueprint(catalog)

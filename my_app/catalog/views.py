@@ -6,7 +6,7 @@ from flask import (Blueprint, flash, jsonify, redirect, render_template,
 from sqlalchemy.orm.util import join
 from werkzeug.utils import secure_filename
 
-from my_app import ALLOWED_EXTENSIONS, app, db
+from my_app import ALLOWED_EXTENSIONS, ALLOWED_LANGUAGES, app, babel, db
 from my_app.catalog.models import Category, CategoryForm, Product, ProductForm
 
 catalog = Blueprint('catalog', __name__)
@@ -32,7 +32,7 @@ def template_or_json(template=None):
 
 def allowed_file(filename):
     return '.' in filename and \
-            filename.lower().rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+        filename.lower().rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
 @app.errorhandler(404)
@@ -143,3 +143,8 @@ def category(id):
 def categories():
     categories = Category.query.all()
     return render_template('categories.html', categories=categories)
+
+
+@babel.localeselector
+def get_locale():
+    return request.accept_languages.best_match(ALLOWED_LANGUAGES.keys())
