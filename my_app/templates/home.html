@@ -1,35 +1,18 @@
 {% extends 'base.html' %}
 
-<!-- Catalog -->
-{# {% block container %}
-    <h1>Welcome to the Catalog Home</h1>
-    <a id="catalog_link" href="{{ url_for('catalog.products') }}">
-        Click here to see the catalog
-    </a>
+{% block container %}
+  <h1>Welcome to the Catalog Home</h1>
+  <a href="{{ url_for('catalog.products') }}" id="catalog_link">
+    Click here to see the catalog
+  </a>
 {% endblock %}
 
 {% block scripts %}
-    <script>
-        $(document).ready(function () {
-            $.getJSON('/home', function (data) {
-                $('#catalog_link').append(
-                    '<span class="badge">'
-                    + data.count
-                    + '</span>'
-                );
-            });
-        });
-    </script>
-{% endblock %} #}
-
-<!-- Authentication -->
-{% block container %}
-    <h1>Welcome to the Authentication Demo</h1>
-    {% if current_user.is_authenticated %}
-        <h3>Hey {{ current_user.username }}!!</h3>
-        <a href="{{ url_for('auth.logout') }}">Click here to logout</a>.
-    {% else %}
-        Click here to <a href="{{ url_for('auth.login') }}">login</a> or
-        <a href="{{ url_for('auth.register') }}">register</a>.
-    {% endif %}
+<script>
+$(document).ready(function(){
+  $.getJSON("/home", function(data) {
+    $('#catalog_link').append('<span class="badge">' + data.count + '</span>');
+  });
+});
+</script>
 {% endblock %}
