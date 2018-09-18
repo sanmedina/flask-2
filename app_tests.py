@@ -82,6 +82,43 @@ class CatalogTestCase(unittest.TestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertTrue(b'iPhone 5' in rv.data)
 
+    def test_search_product(self):
+        "Test searching product"
+        # Create a category to be used in product creation
+        rv = self.app.post('/category-create', data={
+            'name': 'Phones',
+        })
+        self.assertEqual(rv.status_code, 302)
+
+        # Create a product
+        rv = self.app.post('/product-create', data={
+            'name': 'iPhone 5',
+            'price': 549.49,
+            'company': 'Apple',
+            'category': 1
+        })
+        self.assertEqual(rv.status_code, 302)
+
+        # Create another product
+        rv = self.app.post('/product-create', data={
+            'name': 'Galaxy S5',
+            'price': 549.49,
+            'company': 'Samsung',
+            'category': 1
+        })
+        self.assertEqual(rv.status_code, 302)
+
+        self.app.get('/')
+
+        rv = self.app.get('/product-search?name=iPhone')
+        self.assertEqual(rv.status_code, 200)
+        self.assertTrue(b'iPhone 5' in rv.data)
+        self.assertFalse(b'Galaxy S5' in rv.data)
+
+        rv = self.app.get('/product-search?name=iPhone 6')
+        self.assertEqual(rv.status_code, 200)
+        self.assertFalse(b'iPhone 6' in rv.data)
+
 
 if __name__ == '__main__':
     unittest.main()
