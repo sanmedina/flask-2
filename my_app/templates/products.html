@@ -15,14 +15,14 @@
         {{"<< Previous Page"}}
       </a>
     {% else %}
-      {{"<< Previous Page"}}
+      {{"<< No previous page"}}
     {% endif %} |
     {% if products.has_next %}
       <a href="{{ url_for('catalog.products', page=products.next_num) }}">
         {{"Next page >>"}}
       </a>
     {% else %}
-      {{"Next page >>"}}
+      {{"No next page >>"}}
     {% endif %}
   </div>
 {% endblock %}
